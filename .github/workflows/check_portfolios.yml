@@ -1,0 +1,32 @@
+name: Check Portfolios MA180
+
+on:
+  schedule:
+    # 每天 14:30 北京时间 => UTC 06:30
+    - cron: '30 6 * * *'
+  workflow_dispatch: {}  # 允许手动触发
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install jqdatasdk pyyaml pandas requests numpy
+
+      - name: Run portfolio check
+        env:
+          JQDATA_USER: ${{ secrets.JQDATA_USER }}
+          JQDATA_PASS: ${{ secrets.JQDATA_PASS }}
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+        run: |
+          python run_portfolios.py
